@@ -2,17 +2,26 @@
 
 __author__ = 'gbrva'
 
+import logging
+import os
+import sys
+import traceback
+
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMessageBox
+
 from convert import *
 from interface import *
-import sys
-import os
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QIcon
 
 # Номер збірки
-numBuild = '01_210915'
-
-
+numBuild = '02_230903'
+logger = logging.getLogger('convert')
+hdlr = logging.FileHandler('converter.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.DEBUG)
 class MyWin(QtWidgets.QMainWindow):
     mdlFlag = True
 
@@ -56,17 +65,27 @@ class MyWin(QtWidgets.QMainWindow):
         return None
 
     def do_convert(self):
-        frname = self.ui.lineEdit.text()
-        tmpname = os.path.split(frname)
-        fwname = os.path.join(tmpname[0], 'mdl_' + tmpname[1])
-        text1 = self.ui.outlabel.setText('Output file: ' + fwname)
-        if self.ui.MoodleBtn.isChecked():
-            Convert_1c(frname, fwname, self.ui.FotoBox.isChecked())
-        else:
-            Convert_Text(frname, fwname)
-        # self.ui.progressBar.setProperty('value', newvalue)
-        self.ui.lineEdit.setText('')
-        self.ui.pushButton.setEnabled(False)
+        try:
+            frname = self.ui.lineEdit.text()
+            tmpname = os.path.split(frname)
+            tmp_name_short=os.path.splitext(tmpname[1])
+            fwname = os.path.join(tmpname[0], 'mdl_' + tmp_name_short[0]+'.csv')
+            text1 = self.ui.outlabel.setText('Output file: ' + fwname)
+            if self.ui.MoodleBtn.isChecked():
+                Convert_1c(frname, fwname, self.ui.FotoBox.isChecked())
+            else:
+                Convert_Text(frname, fwname)
+            # self.ui.progressBar.setProperty('value', newvalue)
+            self.ui.lineEdit.setText('')
+            self.ui.pushButton.setEnabled(False)
+        except Exception as e:  # work on python 3.x
+            logger.exception (e)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText('Convert failed! See log for details')
+            msg.setWindowTitle("Error")
+            msg.exec_()
         return None
 
 

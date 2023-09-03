@@ -19,7 +19,7 @@ TypeStud = '6'
 
 
 def ReadCount(fread):
-    f = open(fread)
+    f = open(fread, encoding='cp1251')
     n = 0
     while True:
         line = f.readline()
@@ -31,25 +31,33 @@ def ReadCount(fread):
     return n
 
 
-def CreateLogin(name1, name2):
-    tmprnd = random.randint(10, 99)
-    tmplogin = name1[:4] + name2[:2] + str(tmprnd)
+def CreateLogin(name1, name2, number):
+    # tmpindx = random.randint(10, 99)
+    tmpindx = number[len(number)-3:len(number)]
+    tmplogin = name1[:4] + name2[:2] + str(tmpindx)
     loginusr = transliterate(tmplogin.lower())
     return loginusr
 
 
-def CreatePass():
-    passvdusr = str(random.randint(10000000, 99999999))
-    return passvdusr
+def CreatePass(strdata1, strdata2, login):
+    if strdata1 != '' and strdata2 != '':
+        user_pass = strdata1[3:6] + strdata2[3:-1]
+    else:
+        if strdata2 == '' and  strdata1 != '':
+            user_pass = strdata1[3:6] + str(ord(login[1])) + str(ord(login[2]))
+        else:
+            if strdata1 == '' and  strdata2 != '':
+                user_pass = strdata2[3:6] + str(ord(login[1])) + str(ord(login[2]))
+            else:
+                user_pass = login[4:6] + login[0:3]
+    return user_pass
 
 
 def CreateImg(fpath, oldfile, newname):
-    print(fpath)
     # Перевіряємо чи існує вихідний файл
     tmpname = os.path.split(fpath)
     oldfile = os.path.join(tmpname[0], oldfile)
     if os.path.exists(oldfile):
-        print(fpath)
         # Отримали шлях і створюємо новий до вхідного файлу
         tmpname = os.path.split(oldfile)
         # створюємо нове імя і перейменовуємо його
@@ -60,8 +68,9 @@ def CreateImg(fpath, oldfile, newname):
 
 
 def Convert_1c(fread, fwrite, flag):
-    fr = open(fread)
-    fw = open(fwrite, 'w')
+    fr = open(fread, encoding='cp1251')
+    fw = open(fwrite, 'w', encoding='utf8')
+    fw.write('\ufeff')
     writestr = ','.join(Lst1) + '\n'
     fw.write(writestr)
     count = ReadCount(fread)
@@ -75,8 +84,10 @@ def Convert_1c(fread, fwrite, flag):
             n = n + 1
             lst = line.split('|')
             cohorts = lst[20] + ' (' + lst[21] + ')'
-            loginusr = CreateLogin(lst[0], lst[1])
-            passvdusr = CreatePass()
+            loginusr = CreateLogin(lst[0], lst[1], lst[9])
+            if loginusr == '':
+                continue
+            passvdusr = CreatePass(lst[7], lst[9], loginusr)
             usermail = loginusr + Email
             lstv = [loginusr, passvdusr, lst[0], lst[1], usermail, TypeStud, cohorts, City, Country]
             writestr = ','.join(lstv) + '\n'
@@ -117,8 +128,8 @@ def Convert_Text(fread, fwrite):
             n = n + 1
             lst = line.split('|')
             cohorts = lst[2] + lst[3] + ' (' + lst[4] + ')'
-            loginusr = CreateLogin(lst[0], lst[1])
-            passvdusr = CreatePass()
+            loginusr = CreateLogin(lst[0], lst[1], lst[9])
+            passvdusr = CreatePass(lst[7], lst[9], loginusr)
             usermail = loginusr + Email
             lstv = [loginusr, passvdusr, lst[0], lst[1], usermail, TypeStud, cohorts, City, Country]
             writestr = ','.join(lstv) + '\n'
