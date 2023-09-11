@@ -36,6 +36,8 @@ def CreateLogin(name1, name2, number):
     tmpindx = number[len(number)-3:len(number)]
     tmplogin = name1[:4] + name2[:2] + str(tmpindx)
     loginusr = transliterate(tmplogin.lower())
+    if (len(loginusr)<=2):
+        loginusr = loginusr+loginusr+loginusr
     return loginusr
 
 
