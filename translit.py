@@ -98,7 +98,7 @@ def transliterate(string):
             else:
                 repl = repl.upper()
         else:
-            repl = char
+            repl = u''
         translit_string += repl
 
     return translit_string
