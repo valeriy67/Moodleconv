@@ -35,7 +35,7 @@ def CreateLogin(name1, name2, number):
     # tmpindx = random.randint(10, 99)
     tmpindx = number[len(number)-3:len(number)]
     tmplogin = name1[:4] + name2[:2] + str(tmpindx)
-    loginusr = transliterate(tmplogin.lower())
+    loginusr = transliterate(tmplogin.lower().replace(" ", ""))
     if (len(loginusr)<=2):
         loginusr = loginusr+loginusr+loginusr
     return loginusr
