@@ -10,9 +10,8 @@ import os, time
 RESAMPLE = getattr(Image, "LANCZOS", getattr(Image, "ANTIALIAS", Image.BICUBIC))
 FName = 'Data/dp2000.txt'
 F2Name = 'Data/dp2000.cvs'
-Lst1 = ['username', 'password', 'lastname', 'firstname', 'email', 'type1', 'cohort1', 'city', 'country', 'lang']
-
-Email = '@elr.tnpu.edu.ua'
+Lst1 = ['username', 'password', 'lastname', 'firstname', 'email', 'type1', 'cohort1', 'city', 'country']
+Email = '@elr.local'
 City = 'Тернопіль'
 Country = 'UA'
 Userlang = 'uk_UTF-8'
@@ -163,8 +162,6 @@ def Convert_1c(fread, fwrite, flag, max_img_size=(800, 600)):
         pass_2     = lst[9] if len(lst) > 9 else ''
         faculty    = lst[20].strip() if len(lst) > 20 else ''
         group_name = lst[21].strip() if len(lst) > 21 else ''
-        if group_name == '':
-            continue
         photo_file = lst[13].strip() if len(lst) > 13 else ''
 
         # Логін рахуємо відразу — він знадобиться і для перейменування фото
@@ -191,7 +188,7 @@ def Convert_1c(fread, fwrite, flag, max_img_size=(800, 600)):
 
         # ПИШЕМО РЯДОК У CSV
         lstv = [loginusr, passvdusr, last_name, first_name, usermail,
-                TypeStud, cohorts, City, Country, Userlang]
+                TypeStud, cohorts, City, Country]
         fw.write(','.join(lstv) + '\n')
 
         # Перейменування фото (якщо треба)
@@ -210,7 +207,7 @@ def Convert_Text(fread, fwrite):
     """
     Очікуваний формат вхідного тексту:
       Прізвище|Імя|форма(п/з)|Факультет|Група|... (можливі додаткові поля)
-    Формує CSV для Moodle з заголовком Lst1 (включно з полем 'lang').
+    Формує CSV для Moodle з заголовком Lst1 .
     """
 
     # --- читання вхідного (пробуємо UTF-8, якщо не вийде — cp1251) ---
@@ -247,13 +244,14 @@ def Convert_Text(fread, fwrite):
         form        = lst[2] if len(lst) > 2 else ''       # п/з
         faculty     = lst[3] if len(lst) > 3 else ''
         group_code  = lst[4] if len(lst) > 4 else ''
-
+        if not group_code:
+            continue
         # Якщо у вас у текстовому файлі є додаткові колонки для CreatePass,
         # наприклад дати/номери на позиціях 7 і 9 — беремо їх, інакше ''.
         pass_src_1  = lst[7] if len(lst) > 7 else ''
         pass_src_2  = lst[9] if len(lst) > 9 else ''
 
-        # Когорта (налаштуйте як вам потрібно)
+
         cohorts = f"{form}{fix_ukr_i(faculty)} ({group_code.strip()})"
 
         # Логін/пароль
@@ -266,7 +264,7 @@ def Convert_Text(fread, fwrite):
 
         # ДОДАЛИ поле мови (Userlang) наприкінці, щоб відповідало заголовку Lst1
         lstv = [loginusr, passvdusr, last_name, first_name, usermail,
-                TypeStud, cohorts, City, Country, Userlang]
+                TypeStud, cohorts, City, Country]
 
         writestr = ','.join(lstv) + '\n'
         fw.write(writestr)
