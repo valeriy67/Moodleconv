@@ -4,7 +4,6 @@ __author__ = 'gbrva'
 
 from translit import *
 from PIL import Image, ImageOps, UnidentifiedImageError
-import random
 import os, time
 # resample-алгоритм сумісний із різними версіями Pillow
 RESAMPLE = getattr(Image, "LANCZOS", getattr(Image, "ANTIALIAS", Image.BICUBIC))
@@ -180,7 +179,7 @@ def Convert_1c(fread, fwrite, flag, max_img_size=(800, 600)):
             continue
 
         # Когорта (можете залишити свою заміну літер для faculty, якщо потрібно)
-        cohorts = f"{faculty} ({group_name})"
+        cohorts = f"{fix_ukr_i(faculty)} ({group_name})"
 
         # Пароль/емейл
         passvdusr = CreatePass(pass_1, pass_2, loginusr)
